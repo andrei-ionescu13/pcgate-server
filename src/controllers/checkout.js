@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { User } from '../models/user.js';
-import { STRIPE_SECRET_KEY } from '../constants.js'
+import { STRIPE_SECRET_KEY, CLIENT_URL } from '../utils/constants.js'
 
 const stripe = new Stripe(STRIPE_SECRET_KEY);
 
@@ -25,8 +25,8 @@ export const createCheckoutSession = async (req, res) => {
       quantity: 1,
     })),
     mode: 'payment',
-    success_url: 'http://localhost:3000/cart',
-    cancel_url: 'http://localhost:3000/cart',
+    success_url: CLIENT_URL,
+    cancel_url: CLIENT_URL,
   });
 
   res.json({ url: session.url })

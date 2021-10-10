@@ -5,7 +5,7 @@ import { sendEmail } from '../services/email.js'
 import { Token } from '../models/token.js'
 import { User } from '../models/user.js'
 import { getCartPrices } from '../utils/get-cart-prices.js';
-import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from '../constants.js';
+import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET, CLIENT_URL, API_URL } from '../utils/constants.js';
 
 export const register = async (req, res) => {
   const { email, password } = req.body;
@@ -36,7 +36,7 @@ export const register = async (req, res) => {
       type: 'activation-token'
     });
     await tokenDoc.save()
-    const link = `http://localhost:3003/auth/activate?token=${activationToken}&userId=${user._id}`;
+    const link = `${API_URL}/auth/activate?token=${activationToken}&userId=${user._id}`;
     await sendEmail(user.email, 'Activate', link)
     res.sendStatus(200);
   } catch (error) {
@@ -163,7 +163,7 @@ export const requestPasswordReset = async (req, res, next) => {
     });
     await tokenDoc.save()
 
-    const link = `http://localhost:3000/password-reset?token=${resetToken}&userId=${user._id}`;
+    const link = `${CLIENT_URL}/password-reset?token=${resetToken}&userId=${user._id}`;
     await sendEmail(user.email, 'Reset', link)
 
     res.send({ tokenDoc, resetToken })
@@ -222,7 +222,6 @@ export const passwordReset = async (req, res, next) => {
 }
 
 export const activate = async (req, res, next) => {
-  console.log('here')
   const { userId, token } = req.query;
   console.log({ userId, token })
   if (!userId || !token) {
@@ -246,7 +245,7 @@ export const activate = async (req, res, next) => {
     );
     await activateToken.deleteOne();
 
-    res.redirect('http://localhost:3000/login');
+    res.redirect(`${CLIENT_URL}/login`);
   } catch (error) {
     next(error);
   }

@@ -10,7 +10,7 @@ import reviewRoutes from './routes/review.js';
 import userRoutes from './routes/user.js';
 import { Order } from './models/order.js';
 import { User } from './models/user.js';
-import { MONGO_URI, PORT, STRIPE_SIGNING_SECRET, STRIPE_SECRET_KEY } from './constants.js';
+import { MONGO_URI, PORT, STRIPE_SIGNING_SECRET, STRIPE_SECRET_KEY } from './utils/constants.js';
 
 const port = PORT || 3001;
 const app = express();
