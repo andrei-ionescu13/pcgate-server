@@ -27,8 +27,9 @@ export const register = async (req, res) => {
 
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    user = new User({ email, password: hashedPassword })
+    user = new User({ email, password: hashedPassword });
     await user.save();
+
     const tokenDoc = new Token({
       user: user._id,
       token: hashedActivationToken,
@@ -36,9 +37,10 @@ export const register = async (req, res) => {
       type: 'activation-token'
     });
     await tokenDoc.save()
+
     const link = `${API_URL}/auth/activate?token=${activationToken}&userId=${user._id}`;
     await sendEmail(user.email, 'Activate', link)
-    res.sendStatus(200);
+    res.json({ status: 'OK' });
   } catch (error) {
     console.log(error)
     res.status(500).send({

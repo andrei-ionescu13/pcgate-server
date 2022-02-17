@@ -2,7 +2,7 @@ import { Product } from '../models/product.js';
 
 export const listProducts = async (req, res, next) => {
   let { query, skip, limit, os, drm, genres, sortBy, sort } = req.body;
-
+  console.log(req.body);
   sortBy = sortBy || 'release';
   sort = sort || -1;
   skip = skip || 0;

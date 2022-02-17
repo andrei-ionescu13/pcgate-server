@@ -93,7 +93,7 @@ export const deleteReview = async (req, res, next) => {
 
   try {
     await Review.deleteOne({ _id: reviewId, userId });
-    res.send();
+    res.send({ status: 'ok' });
   } catch (error) {
     console.log(error);
     next(error);
