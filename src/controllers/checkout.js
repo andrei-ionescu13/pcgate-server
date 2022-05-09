@@ -7,20 +7,19 @@ const stripe = new Stripe(STRIPE_SECRET_KEY);
 export const createCheckoutSession = async (req, res) => {
   const { userId } = req.user;
   const { currency } = req.body;
-
   const user = await User.findById(userId).populate('cartItems.product')
-
   const session = await stripe.checkout.sessions.create({
     customer_email: user.email,
     customer: user._id,
     payment_method_types: ['card'],
     line_items: user.cartItems.map((item) => ({
       price_data: {
-        currency: currency,
+        currency,
         product_data: {
           name: item.product.name,
         },
-        unit_amount: item.product.currentPrice[currency],
+        //change to the selected currency
+        unit_amount: item.product.price,
       },
       quantity: 1,
     })),

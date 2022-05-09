@@ -46,9 +46,8 @@ reviewSchema.pre('deleteOne', async function () {
     await user.save();
     await product.save();
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-
 })
 
 export const Review = mongoose.model('Review', reviewSchema);

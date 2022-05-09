@@ -16,11 +16,6 @@ export const getOrder = async (req, res, next) => {
   const { userId } = req.user;
   const { id } = req.params;
 
-  console.log({
-    userId,
-    id
-  })
-
   try {
     const order = await Order.findOne({ _id: id, user: userId });
     res.send(order);

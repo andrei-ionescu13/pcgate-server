@@ -5,7 +5,6 @@ import { getCartPrices } from '../utils/get-cart-prices.js';
 export const wishlistProduct = async (req, res, next) => {
   const { userId } = req.user;
   const { productId } = req.body;
-  console.log(userId)
   try {
     let user = await User.findById(userId).populate('wishlist');
     const product = await Product.findById(productId);

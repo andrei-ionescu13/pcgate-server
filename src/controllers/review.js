@@ -82,7 +82,6 @@ export const addReview = async (req, res, next) => {
     await user.populate('reviews')
     res.send({ reviews: product.reviews, reviewsSummary: product.reviewsSummary })
   } catch (error) {
-    console.log(error);
     next(error);
   }
 }
@@ -95,7 +94,6 @@ export const deleteReview = async (req, res, next) => {
     await Review.deleteOne({ _id: reviewId, userId });
     res.send({ status: 'ok' });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 }

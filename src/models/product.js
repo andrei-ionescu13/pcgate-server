@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { Currency } from './currency.mjs';
 const { Schema } = mongoose;
 
 export const productSchema = new Schema({
@@ -64,29 +65,13 @@ export const productSchema = new Schema({
       default: false
     }
   },
-  price: {
-    JPY: Number,
-    RUB: Number,
-    AUD: Number,
-    CAD: Number,
-    EUR: Number,
-    USD: Number,
-    GBP: Number
-  },
+  fullPrice: Number,
   publishers: [String],
   release: Date,
   type: String,
   video: [String],
   desc: String,
-  currentPrice: {
-    JPY: Number,
-    RUB: Number,
-    AUD: Number,
-    CAD: Number,
-    EUR: Number,
-    USD: Number,
-    GBP: Number
-  },
+  price: Number,
   current_discount: {
     percent: Number,
     display_percentage: Boolean,
@@ -111,5 +96,53 @@ export const productSchema = new Schema({
     }
   }
 });
+
+const getPrices = (product, currencies) => {
+  const price = product.price;
+  const fullPrice = product.fullPrice;
+  const priceMap = {};
+  const fullPriceMap = {};
+
+  for (const currency of currencies) {
+    const currencyCode = currency.code;
+    const pricePerCurrency = price * currency.rate / 100;
+    const fullPricePerCurrency = fullPrice * currency.rate / 100;
+
+    priceMap[currencyCode] = pricePerCurrency;
+    fullPriceMap[currencyCode] = fullPricePerCurrency;
+  }
+
+  return { priceMap, fullPriceMap };
+
+}
+
+productSchema.post('findOne', async function (product) {
+  const currencies = await Currency.find({});
+  const { priceMap, fullPriceMap } = getPrices(product, currencies);
+
+  product.price = priceMap;
+  product.fullPrice = fullPriceMap;
+});
+
+productSchema.post('find', async function (products) {
+  const currencies = await Currency.find({});
+
+  for (const product of products) {
+    const { priceMap, fullPriceMap } = getPrices(product, currencies);
+    product.price = priceMap;
+    product.fullPrice = fullPriceMap;
+  }
+});
+
+productSchema.post('aggregate', async function (doc) {
+  const currencies = await Currency.find({});
+
+  for (const product of doc[0].products) {
+    const { priceMap, fullPriceMap } = getPrices(product, currencies);
+    product.price = priceMap;
+    product.fullPrice = fullPriceMap;
+  }
+})
+
 
 export const Product = mongoose.model('Product', productSchema);

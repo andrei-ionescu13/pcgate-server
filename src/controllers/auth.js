@@ -42,7 +42,6 @@ export const register = async (req, res) => {
     await sendEmail(user.email, 'Activate', link)
     res.json({ status: 'OK' });
   } catch (error) {
-    console.log(error)
     res.status(500).send({
       message: 'Error'
     })
@@ -104,15 +103,13 @@ export const login = async (req, res) => {
     return res.status(500);
   }
 
-  res.status(200).send({
-    accessToken,
-    refreshToken
-  })
+  res.cookie('accessToken', accessToken, { maxAge: 24 * 60 * 1000, httpOnly: true });
+  res.cookie('refreshToken', refreshToken, { maxAge: 7 * 24 * 60 * 1000, httpOnly: true });
+  res.send({ status: 'ok' })
 };
 
 export const requestAccessToken = async (req, res, next) => {
-  const refreshToken = req.headers['refresh-token'];
-
+  const { refreshToken } = req.cookies;
   if (!refreshToken) {
     return res.status(403).send({ message: 'Refresh token required' });
   }
@@ -132,7 +129,8 @@ export const requestAccessToken = async (req, res, next) => {
       expiresIn: "1h"
     });
 
-    res.send({ accessToken });
+    res.cookie('accessToken', accessToken, { maxAge: 24 * 60 * 1000, httpOnly: true });
+    res.json({ status: 'ok' });
   } catch (err) {
     return res.status(401).send({ message: 'Invalid refresh token' })
   }
@@ -170,7 +168,6 @@ export const requestPasswordReset = async (req, res, next) => {
 
     res.send({ tokenDoc, resetToken })
   } catch (error) {
-    console.log(error)
     next(error)
   }
 
@@ -218,7 +215,6 @@ export const passwordReset = async (req, res, next) => {
     await passwordResetToken.deleteOne();
     res.status(200).send('Changed');
   } catch (error) {
-    console.log(error)
     next(error)
   }
 }
@@ -251,4 +247,11 @@ export const activate = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+}
+
+export const logout = async (req, res, next) => {
+  console.log('logout')
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+  res.send({ status: 'ok' })
 }
